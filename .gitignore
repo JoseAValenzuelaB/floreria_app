@@ -49,9 +49,6 @@ out/
 *.log
 
 # Other
-src/electron.ts
-src/main.js
-src/preload.js
 /src/*.js.map
 /src/*.d.ts
 
