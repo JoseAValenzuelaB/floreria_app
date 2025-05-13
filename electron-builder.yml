@@ -1,0 +1,7 @@
+appId: com.floreria.app
+productName: Floreria Tuxpan
+directories:
+  output: build
+mac:
+  category: public.app-category.utilities
+  target: dmg
