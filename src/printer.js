@@ -1,6 +1,5 @@
 const usb = require("usb");
 const iconv = require("iconv-lite");
-const sharp = require("sharp");
 
 const PAYMENT_TYPE_DICT = {
   CASH: "Efectivo",
@@ -147,62 +146,6 @@ class USBPrinter {
       });
     } catch (error) {
       console.error(`Error in sendCommand: ${error.message}`);
-    }
-  }
-
-  async generateHelloWorldImage() {
-    const width = 384; // Width in pixels (fits a typical 80mm wide thermal printer)
-    const height = 100; // Height in pixels
-
-    // Create a blank white image
-    const image = sharp({
-      create: {
-        width: width,
-        height: height,
-        channels: 1, // Use 1 channel for grayscale image
-        background: "white",
-      },
-    });
-
-    // Generate the image with "Hello World!" text
-    const textImage = `
-    <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-        <style>
-            .title { fill: black; font-size: 24px; font-family: Arial, sans-serif; }
-        </style>
-        <text x="10" y="40" class="title">Hello World!</text>
-    </svg>`;
-
-    // Generate the image buffer
-    const buffer = await image
-      .composite([{ input: Buffer.from(textImage), blend: "over" }])
-      .toBuffer();
-
-    return { buffer, width, height };
-  }
-
-  async printImage(imagePath) {
-    try {
-      // Load and convert image to grayscale
-      const imageBuffer = await sharp(imagePath)
-        .resize({ width: 384 }) // Resize to fit the printer width (e.g., 384 pixels for 80mm paper)
-        .grayscale() // Convert to grayscale
-        .raw() // Get raw image data
-        .toBuffer();
-
-      // Calculate width and height from image buffer
-      const width = imageBuffer.length / Math.ceil(imageBuffer.length / 384);
-      const height = Math.ceil(imageBuffer.length / width);
-      console.log("WIDTH: ", width, "HEIGHT: ", height);
-      // Prepare raster data
-      const rasterData = this.prepareRasterData(imageBuffer, width, height);
-
-      // Send the command to the printer
-      this.sendCommand(rasterData);
-
-      console.log("Image printed successfully.");
-    } catch (error) {
-      console.error(`Error while printing image: ${error.message}`);
     }
   }
 
