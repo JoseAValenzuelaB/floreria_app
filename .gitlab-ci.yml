@@ -1,0 +1,49 @@
+stages:
+  - install
+  - build
+  - deploy
+
+# Define the image used for the pipeline with Node 22.9 version
+image: node:22.9
+
+# Cache node_modules to speed up the pipeline
+cache:
+  paths:
+    - node_modules/
+
+# Install dependencies and missing libraries
+install_dependencies:
+  stage: install
+  image: node:22.9
+  before_script:
+    - apt-get update && apt-get install -y libudev-dev build-essential
+  script:
+    - npm install
+
+# Build stage
+build:
+  stage: build
+  script:
+    # Install dependencies
+    - npm install
+    # Build the Electron app (producing .exe and other artifacts)
+    - npm run build # This assumes you have a 'build' script in your package.json
+    - npm run dist  # This assumes you're using electron-builder to generate the .exe
+  artifacts:
+    paths:
+      - dist/ # The folder where your .exe file will be created
+
+# Deploy stage (upload the generated .exe to a server or artifact storage)
+deploy:
+  stage: deploy
+  script:
+    # Install necessary tools like curl if needed
+    - apt-get update && apt-get install -y curl
+    # Upload the .exe file to a location where it can be accessed (e.g., S3, a GitLab job artifact, or custom server)
+    # Here we're uploading to GitLab's built-in artifacts
+    - echo "Deploying .exe file"
+  dependencies:
+    - build
+  only:
+    - develop # Only deploy from the main branch (adjust based on your needs)
+
